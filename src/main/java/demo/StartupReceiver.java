@@ -14,7 +14,7 @@ public class StartupReceiver {
 
         ApplicationContext ctx = new ClassPathXmlApplicationContext("classpath:activemq-config.xml");
 
-        ProxyJMSConsumer consumer = (ProxyJMSConsumer) ctx.getBean("proxyJMSConsumer");
+        Consumer consumer = (Consumer) ctx.getBean("consumerA");
 
         consumer.receive();
 

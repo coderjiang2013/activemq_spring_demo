@@ -3,33 +3,48 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-    <!--连接工厂，JMS 用它创建连接-->
+    <!--activeMQ 连接工厂，JMS 用它创建连接-->
     <bean id="mqConnectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory" >
         <property name="brokerURL" value="tcp://127.0.0.1:61616" />
-        <!--<property name="clientID" value="msgListener" />-->
-        <property name="clientID">
+<!--        <property name="clientID">
             <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
                 <property name="targetObject" ref="mqClientIDFactory"/>
                 <property name="targetMethod" value="getClientID"/>
             </bean>
-        </property>
+        </property>-->
     </bean>
 
+    <!--spring提供对connectionfactory的管理类-->
+    <bean id="jmsConnectionFactory" class="org.apache.activemq.pool.PooledConnectionFactory" destroy-method="stop">
+        <property name="connectionFactory" ref="mqConnectionFactory" />
+        <property name="maxConnections" value="100" />
+    </bean>
+
+    <!--ClientID 生成器-->
     <bean id="mqClientIDFactory" class="demo.ClientIDFactory" />
 
+    <!--JMS 模板-->
+    <bean id="mqJMSTemplate" class="org.springframework.jms.core.JmsTemplate">
+        <property name="connectionFactory" ref="jmsConnectionFactory"/>
+        <!-- false是queue, true是topic -->
+        <property name="pubSubDomain" value="true"/>
+    </bean>
+
     <!--订阅地址-->
-    <bean id="mqDestination" class="org.apache.activemq.command.ActiveMQTopic" scope="prototype">
+    <bean id="mqDestination" class="org.apache.activemq.command.ActiveMQTopic">
         <constructor-arg value="subject" />
     </bean>
 
-    <bean id="proxyJMSConsumer" class="demo.ProxyJMSConsumer">
-        <property name="connectionFactory" ref="mqConnectionFactory" />
-        <property name="activeMQTopic" ref="mqDestination" />
+    <!--定义一个消费者-->
+    <bean id="consumerA" class="demo.Consumer">
+        <property name="jmsTemplate" ref="mqJMSTemplate"/>
+        <property name="destination" ref="mqDestination"/>
     </bean>
 
-    <bean id="proxyJMSProducer" class="demo.ProxyJMSProducer">
-        <property name="connectionFactory" ref="mqConnectionFactory" />
-        <property name="activeMQTopic" ref="mqDestination" />
+    <!--定义一个生产者-->
+    <bean id="producerA" class="demo.Producer">
+        <property name="jmsTemplate" ref="mqJMSTemplate"/>
+        <property name="destination" ref="mqDestination"/>
     </bean>
 
 </beans>

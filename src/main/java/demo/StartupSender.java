@@ -14,7 +14,7 @@ public class StartupSender {
 
         ApplicationContext ctx = new ClassPathXmlApplicationContext("classpath:activemq-config.xml");
 
-        ProxyJMSProducer producer = (ProxyJMSProducer) ctx.getBean("proxyJMSProducer");
+        Producer producer = (Producer) ctx.getBean("producerA");
 
         producer.send("Hello world");
 
