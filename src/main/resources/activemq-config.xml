@@ -21,7 +21,7 @@
     </bean>
 
     <!--ClientID 生成器-->
-    <bean id="mqClientIDFactory" class="demo.ClientIDFactory" />
+p
 
     <!--JMS 模板-->
     <bean id="mqJMSTemplate" class="org.springframework.jms.core.JmsTemplate">
