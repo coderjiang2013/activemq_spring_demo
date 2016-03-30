@@ -6,15 +6,28 @@
     <!--连接工厂，JMS 用它创建连接-->
     <bean id="mqConnectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory" >
         <property name="brokerURL" value="tcp://127.0.0.1:61616" />
-        <property name="clientID" value="msgListener" />
+        <!--<property name="clientID" value="msgListener" />-->
+        <property name="clientID">
+            <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+                <property name="targetObject" ref="mqClientIDFactory"/>
+                <property name="targetMethod" value="getClientID"/>
+            </bean>
+        </property>
     </bean>
 
+    <bean id="mqClientIDFactory" class="demo.ClientIDFactory" />
+
     <!--订阅地址-->
-    <bean id="mqDestination" class="org.apache.activemq.command.ActiveMQTopic">
+    <bean id="mqDestination" class="org.apache.activemq.command.ActiveMQTopic" scope="prototype">
         <constructor-arg value="subject" />
     </bean>
 
     <bean id="proxyJMSConsumer" class="demo.ProxyJMSConsumer">
+        <property name="connectionFactory" ref="mqConnectionFactory" />
+        <property name="activeMQTopic" ref="mqDestination" />
+    </bean>
+
+    <bean id="proxyJMSProducer" class="demo.ProxyJMSProducer">
         <property name="connectionFactory" ref="mqConnectionFactory" />
         <property name="activeMQTopic" ref="mqDestination" />
     </bean>
