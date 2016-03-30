@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!--连接工厂，JMS 用它创建连接-->
+    <bean id="mqConnectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory" >
+        <property name="brokerURL" value="tcp://127.0.0.1:61616" />
+        <property name="clientID" value="msgListener" />
+    </bean>
+
+    <!--订阅地址-->
+    <bean id="mqDestination" class="org.apache.activemq.command.ActiveMQTopic">
+        <constructor-arg value="subject" />
+    </bean>
+
+    <bean id="proxyJMSConsumer" class="demo.ProxyJMSConsumer">
+        <property name="connectionFactory" ref="mqConnectionFactory" />
+        <property name="activeMQTopic" ref="mqDestination" />
+    </bean>
+
+</beans>
