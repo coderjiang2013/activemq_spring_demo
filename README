@@ -1,1 +1,3 @@
 这是一个用spring管理activemq的例子
+
+用于快速集成activemq到spring的项目当中
